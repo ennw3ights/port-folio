@@ -1,0 +1,53 @@
+﻿<MudThemeProvider Theme="_dataStoreTheme"/>
+
+@code {
+
+    private MudTheme _dataStoreTheme = new()
+    {
+        Palette = new PaletteLight()
+        {
+            //"Белый"
+            Background = new MudColor("#FFFCEF"),
+            
+            //Бежевый
+            Primary = new MudColor("#EFDBBB"),
+
+            //Песочный xd
+            Secondary = new MudColor("#DFC4A4"),
+
+            //Коричневый
+            TableLines = new MudColor("#C79667"),
+
+            //Темно-коричневый
+            TextPrimary = new MudColor("#634B4F"),
+        },
+
+        Typography = new Typography()
+        {
+            H1 = new H1()
+            {
+                FontFamily = new[] { "Merriweather" },
+                FontWeight = 400,
+                FontSize = "27px"
+            },
+            H2 = new H2()
+            {
+                FontFamily = new[] { "Harmattan" },
+                FontWeight = 400,
+                FontSize = "20px"
+            },
+            Body1 = new Body1()
+            {
+                FontFamily = new[] { "Harmattan" },
+                FontWeight = 400,
+                FontSize = "16px"
+            },
+            Body2 = new Body2()
+            {
+                FontFamily = new[] { "Harmattan" },
+                FontWeight = 400,
+                FontSize = "14px"
+            },
+        }
+    };
+}

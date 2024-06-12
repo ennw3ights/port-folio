@@ -1,0 +1,110 @@
+﻿@inject ISnackbar Snackbar
+@inject ISourceValidator SourceValidator
+@inject ISourceHttpClient SourceHttpClient
+@inject NavigationManager NavigationManager
+
+<MudText Typo="Typo.h1">Source "@SourceTitle"</MudText>
+
+<MudForm @ref="_form" @bind-IsValid="@Success">
+    <MudList>
+        <MudListItem>Id: @_sourceInfoFormComponentModel.Id</MudListItem>
+        <MudDivider/>
+        <MudListItem>
+            Title: 
+            <MudTextField T="string"
+                          Disabled="@(!EditMode)"
+                          @bind-Value="@_sourceInfoFormComponentModel.Name"
+                          Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))" />
+        </MudListItem>
+        <MudDivider/>
+        <MudListItem>Type: @_sourceInfoFormComponentModel.Type.Name</MudListItem>
+        <MudDivider/>
+        <MudListItem>Date of creation: @_sourceInfoFormComponentModel.DateTimeCreated.ToString("dd.MM.yy")</MudListItem>
+        <MudDivider/>
+        <MudListItem>Modification date: @_sourceInfoFormComponentModel.DateTimeModified.ToString("dd.MM.yy")</MudListItem>
+        <MudDivider/>
+        <MudListItem>
+            Template:
+            @foreach (var property in _sourceInfoFormComponentModel.Template.Properties)
+            {
+                <MudTextField
+                    T="string"
+                    Disabled="true"
+                    Variant="Variant.Outlined"
+                    Value="@property.Name"/>
+                if (property.IsValidByDefault)
+                {
+                    <MudCheckBox
+                        Disabled="true"
+                        @bind-Value="@Check">
+                        Valid by default
+                    </MudCheckBox>
+                }
+            }
+        </MudListItem>
+    </MudList>
+
+    @if (!EditMode)
+    {
+        <SourceInfoFormPublicComponent_DeleteButton SourceId="@_sourceInfoFormComponentModel.Id"
+                                                    OnRemove="@OnDeleteButtonClick"/>
+        <MudButton OnClick="@OnEditButtonClick">Edit</MudButton>
+        <MudButton Href="/import">Import</MudButton>
+    }
+    else
+    {
+        <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+    }
+</MudForm>
+
+@code {
+    SourceInfoFormComponentModel _sourceInfoFormComponentModel = new();
+
+    MudForm _form = null!;
+
+    bool Check { get; set; } = true;
+
+    bool Success { get; set; }
+
+    string SourceTitle { get; set; } = null!;
+
+    bool EditMode { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await SourceHttpClient.GetByIdAsync(Guid.NewGuid().ToString());
+
+        _sourceInfoFormComponentModel = Mapper.MapToModel(data);
+
+        SourceTitle = _sourceInfoFormComponentModel.Name;
+    }
+
+    void OnDeleteButtonClick()
+    {
+        Snackbar.Add("Source removed", Severity.Success);
+
+        NavigationManager.NavigateTo("/", true);
+    }
+
+    void OnEditButtonClick()
+    {
+        EditMode = !EditMode;
+    }
+
+    async Task OnSaveButtonClick()
+    {
+        await _form.Validate();
+        if (Success)
+        {
+            var data = Mapper.MapToDto(_sourceInfoFormComponentModel);
+
+            await SourceHttpClient.UpdateAsync(data);
+
+            Snackbar.Add("Source saved", Severity.Success);
+
+            SourceTitle = _sourceInfoFormComponentModel.Name;
+
+            EditMode = !EditMode;
+        }
+    }
+}

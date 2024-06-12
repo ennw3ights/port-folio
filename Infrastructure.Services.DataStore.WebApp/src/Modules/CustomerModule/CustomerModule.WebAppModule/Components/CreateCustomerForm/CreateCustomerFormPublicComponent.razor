@@ -1,0 +1,73 @@
+﻿@inject ICustomerValidator CustomerValidator
+@inject ICustomerHttpClient CustomerHttpClient
+@inject LoggingService LoggingService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h1">Creating a customer</MudText>
+
+<MudForm @ref="_form" @bind-IsValid="@Success">
+    <MudText Typo="Typo.h2">Title</MudText>
+    <MudTextField @bind-Value="_createCustomerFormComponentModel.Name"
+                  Placeholder="Enter title..."
+                  Validation="@(new Func<string, IEnumerable<string>>(CustomerValidator.ValidateName))" />
+    
+    <CreateCustomerFormPublicComponent_TemplateConstructor SaveEventCallback="SaveContainerInfo" />
+    
+    <MudButton OnClick="OnSaveButtonClick">Save</MudButton>
+</MudForm>
+
+@code{
+    MudForm _form = null!;
+
+    bool Success { get; set; }
+
+    CreateCustomerFormComponentModel _createCustomerFormComponentModel = new();
+
+    void SaveContainerInfo(List<DropContainer> dropContainers)
+    {
+        _createCustomerFormComponentModel.DefaultTemplate = new();
+        _createCustomerFormComponentModel.Templates = new();
+        
+        foreach (var dropContainer in dropContainers)
+        {
+            if (dropContainer.IsDefault)
+            {
+                foreach (var dropItem in dropContainer.Items)
+                {
+                    if (dropItem.Selector == "Selected")
+                    {
+                        _createCustomerFormComponentModel.DefaultTemplate.Properties.Add(Mapper.MapToCustomerProperty(dropItem));
+                    }
+                }
+            }
+            else
+            {
+                CustomerTemplate template = new();
+                foreach (var dropItem in dropContainer.Items)
+                {
+                    if (dropItem.Selector == "Selected")
+                    {
+                        template.Properties.Add(Mapper.MapToCustomerProperty(dropItem));
+                    }
+                }
+                    
+                _createCustomerFormComponentModel.Templates.Add(template);
+            }
+        }
+    }
+
+    async Task OnSaveButtonClick()
+    {
+        await _form.Validate();
+
+        if (Success)
+        {
+            CustomerDto customerDto = Mapper.MapToCustomerDto(_createCustomerFormComponentModel);
+
+            await CustomerHttpClient.CreateAsync(customerDto);
+
+            LoggingService.LogSuccess("Customer created successfully");
+        }
+    }
+
+}

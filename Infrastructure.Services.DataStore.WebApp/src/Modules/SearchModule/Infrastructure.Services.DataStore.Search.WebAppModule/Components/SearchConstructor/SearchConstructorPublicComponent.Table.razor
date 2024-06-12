@@ -1,0 +1,51 @@
+<div>
+    <div>
+        <MudTable Bordered="true"
+                  FixedHeader="true"
+                  Height="448px"
+                  Items="Response.Content">
+            <ToolBarContent>
+                <MudText>Search results</MudText>
+            </ToolBarContent>
+            <HeaderContent>
+                @foreach (var header in Response.Headers)
+                {
+                    <MudTh>@header</MudTh>
+                }
+            </HeaderContent>
+            <RowTemplate>
+                @foreach (var header in Response.Headers)
+                {
+                    <MudTd DataLabel="@header">@context</MudTd>
+                }
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new[] { 10, 25, 50, int.MaxValue }"/>
+            </PagerContent>
+        </MudTable>
+    </div>
+    
+    <div class="d-flex">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="@(() => IsUpload = !IsUpload)">
+            Upload
+        </MudButton>
+        @if (IsUpload)
+        {
+            <MudButton Variant="Variant.Text" OnClick="@(() => Export("excel"))">XLSX</MudButton>
+            <MudButton Variant="Variant.Text" OnClick="@(() => Export("csv"))">CSV</MudButton>
+        }
+    </div>
+
+</div>
+
+@code {
+    [Parameter] public ResponseComponentModel Response { get; set; } = null!;
+    bool IsUpload { get; set; } = false;
+    
+    void Export(string type)
+    {
+        
+    }
+}

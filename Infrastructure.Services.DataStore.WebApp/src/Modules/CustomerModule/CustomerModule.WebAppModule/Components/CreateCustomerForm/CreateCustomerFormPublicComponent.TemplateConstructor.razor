@@ -1,0 +1,125 @@
+﻿@inject ICustomerHttpClient CustomerHttpClient
+@foreach (var container in _dropContainers)
+{
+    <MudPaper Class="ma-4 flex-grow-1" @key="container.Id">
+        <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+            <MudDropContainer T="DropItem"
+                              Items="container.Items"
+                              ItemsSelector="@((item, dropzone) => item.Selector == dropzone)"
+                              ItemDropped="@((dropItem) => ItemUpdated(dropItem, container.Id))"
+                              Class="d-flex flex-wrap flex-grow-1">
+                <ChildContent>
+                    @foreach (var dropzone in container.DropZones)
+                    {
+                        <MudPaper Class="ma-4 flex-grow-1" @key="dropzone">
+                            @if (dropzone == "Selected")
+                            {
+                                if (container.IsDefault)
+                                {
+                                    <MudLink>Default</MudLink>
+                                }
+                                else
+                                {
+                                    <MudLink OnClick="@(() => OnMakeDefaultClick(container.Id))">Make Default</MudLink>
+                                    <MudLink OnClick="@(() => RemoveDropContainer(container.Id))">Delete</MudLink>
+                                }
+                            }
+                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                                <MudListSubheader>Drop Zone @dropzone</MudListSubheader>
+                                <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1"/>
+                            </MudList>
+                        </MudPaper> 
+                    }
+                </ChildContent>
+                <ItemRenderer>
+                    <MudListItem Text="@context.Name" />
+                    @if (context.Selector == "Selected")
+                    {
+                        <MudCheckBox @bind-Value="context.IsRequired">Required</MudCheckBox>
+                        <MudCheckBox @bind-Value="context.IsUnique">Unique to the customer</MudCheckBox>
+                        <MudCheckBox @bind-Value="context.IsValidOnly">Valid only</MudCheckBox>
+                    }
+                </ItemRenderer>
+            </MudDropContainer>
+        </MudList>
+    </MudPaper>
+}
+
+<MudLink OnClick="() => AddDropContainer(false)">Add more container</MudLink>
+
+@code {
+    [Parameter]
+    public EventCallback<List<DropContainer>> SaveEventCallback { get; set; }
+
+    List<CustomerPropertyDto> _propertyDtos = new();
+
+    List<DropContainer> _dropContainers = new();
+
+    List<ListOfPropertiesForTemplate> _listOfProperties = new();
+
+    void AddDropContainer(bool isDefault)
+    {
+        List<DropItem> dropItems = new();
+
+        foreach (var propertyDto in _propertyDtos)
+        {
+            dropItems.Add(Mapper.MapToDropItem(propertyDto));
+        }
+
+        _listOfProperties.Add(new()
+        {
+            Properties = dropItems,
+        });
+
+        _dropContainers.Add(new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            DropZones = new List<string> { "Available", "Selected" },
+            Items = _listOfProperties.Last().Properties,
+            IsDefault = isDefault
+        });
+        StateHasChanged();
+    }
+
+    void RemoveDropContainer(string containerId)
+    {
+        var container = _dropContainers.FirstOrDefault(c => c.Id == containerId);
+        if (container != null)
+        {
+            _dropContainers.Remove(container);
+        }
+        StateHasChanged();
+    }
+
+    async Task ItemUpdated(MudItemDropInfo<DropItem> dropItem, string containerId)
+    {
+        var container = _dropContainers.FirstOrDefault(c => c.Id == containerId);
+        if (container != null)
+        {
+            if (dropItem.Item != null)
+            {
+                var item = container.Items.FirstOrDefault(i => i.Name == dropItem.Item.Name);
+
+                if (item != null)
+                {
+                    item.Selector = dropItem.DropzoneIdentifier;
+                }
+            }
+        }
+        await SaveEventCallback.InvokeAsync(_dropContainers);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _propertyDtos = await CustomerHttpClient.GetAvailablePropertiesAsync();
+
+        AddDropContainer(true);
+    }
+
+    private void OnMakeDefaultClick(string id)
+    {
+        _dropContainers.Where(c => c.Id == id).Select(c => c.IsDefault = true).ToList();
+        _dropContainers.Where(c => c.Id != id).Select(c => c.IsDefault = false).ToList();
+    }
+
+}

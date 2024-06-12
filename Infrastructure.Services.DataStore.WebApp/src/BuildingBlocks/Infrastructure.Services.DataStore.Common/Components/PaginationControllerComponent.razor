@@ -1,0 +1,45 @@
+﻿<div class="d-flex justify-content-end align-items-center w-100">
+    <div class="pagination-controls">
+        <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" OnClick="@(() => NavigateToPage(1))" />
+
+        <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowLeft" OnClick="() => NavigateToPage((_currentPage - 1))" />
+
+        <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowRight" OnClick="() => NavigateToPage((_currentPage + 1))" />
+
+        <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight" OnClick="@(() => NavigateToPage(_totalPages))" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+
+    [Parameter]
+    public int LastPage { get; set; }
+
+    [Parameter]
+    public int Radius { get; set; } = 2;
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+
+    int _currentPage;
+    int _totalPages;
+
+    int StartPage => Math.Max(1, _currentPage - Radius);
+    int EndPage => Math.Min(_totalPages, _currentPage + Radius);
+
+    protected override void OnParametersSet()
+    {
+        _currentPage = CurrentPage;
+        _totalPages = LastPage;
+    }
+
+    async Task NavigateToPage(int page)
+    {
+        if (page < 1 || page > _totalPages) return; // Prevent navigation out of bounds
+        _currentPage = page;
+        await OnPageChanged.InvokeAsync(page);
+    }
+}

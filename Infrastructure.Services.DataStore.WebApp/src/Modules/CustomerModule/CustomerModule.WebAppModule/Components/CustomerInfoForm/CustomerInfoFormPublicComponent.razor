@@ -1,0 +1,139 @@
+﻿@inject ICustomerHttpClient CustomerHttpClient
+@inject ICustomerValidator CustomerValidator
+@inject ISnackbar Snackbar
+
+@inject NavigationManager NavigationManager
+@inject LoggingService LoggingService
+
+<MudText Typo="Typo.h1">Customer "@CustomerTitle"</MudText>
+
+<MudForm @ref="_form" @bind-IsValid="Success">
+    <MudList>
+        <MudListItem>Id: @_customerInfoFormComponentModel.Id</MudListItem>
+        <MudDivider />
+        
+        <MudListItem>
+            Title:
+            <MudTextField T="string"
+                          Disabled="@(!EditMode)"
+                          @bind-Value="@_customerInfoFormComponentModel.Name"
+                          Validation="@(new Func<string, IEnumerable<string>>(CustomerValidator.ValidateName))" />
+        </MudListItem>
+        <MudDivider />
+        
+        <MudListItem>Date of creation: @_customerInfoFormComponentModel.DateTimeCreate.ToString("dd.MM.yy")</MudListItem>
+        <MudDivider />
+
+        <MudListItem>Modification date: @_customerInfoFormComponentModel.DateTimeLastModified.ToString("dd.MM.yy")</MudListItem>
+        <MudDivider />
+        
+        <MudListItem>
+            Default template:
+            @foreach (var property in _customerInfoFormComponentModel.DefaultTemplate.Properties)
+            {
+                <MudTextField T="string"
+                              Disabled="true"
+                              Variant="Variant.Outlined"
+                              Value="@property.Name" />
+
+                @if (property.IsRequired)
+                {
+                    <MudCheckBox Disabled="true"
+                                 @bind-Value="@Check">
+                        Required
+                    </MudCheckBox>
+                }
+
+                @if (property.IsUnique)
+                {
+                    <MudCheckBox Disabled="true"
+                                 @bind-Value="@Check">
+                        Unique to the customer
+                    </MudCheckBox>
+                }
+
+                @if (property.IsValidByDefault)
+                {
+                    <MudCheckBox Disabled="true"
+                                 @bind-Value="@Check">
+                        Valid only
+                    </MudCheckBox>
+                }
+            }
+        </MudListItem>
+        
+        @if (_customerInfoFormComponentModel.Templates != null)
+        {
+            <MudListItem Style="height:600px;">
+                Templates:
+                <CustomerInfoFormPublicComponent_TemplateCarousel Source="_customerInfoFormComponentModel.Templates"/>
+            </MudListItem>
+        }
+
+        @if (!EditMode)
+        {
+            <CustomerInfoFormPublicComponent_DeleteButton CustomerId="@_customerInfoFormComponentModel.Id"
+                                                          OnRemove="@OnDeleteButtonClick"/>
+            <MudButton OnClick="@OnEditButtonClick">Edit</MudButton>
+            <MudButton Href="/import">Import</MudButton>
+        }
+        else
+        {
+            <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+        }
+    </MudList>
+</MudForm>
+
+@code {
+    MudForm _form = null!;
+
+    CustomerInfoFormComponentModel _customerInfoFormComponentModel = new();
+
+    bool Success { get; set; }
+
+    bool Check { get; set; } = true;
+
+    bool EditMode { get; set; }
+
+    string CustomerTitle { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var customerDto = await CustomerHttpClient.GetCustomerAsync(Guid.NewGuid().ToString());
+
+        _customerInfoFormComponentModel = Mapper.MapToModel(customerDto);
+
+        CustomerTitle = _customerInfoFormComponentModel.Name;
+    }
+
+    void OnDeleteButtonClick()
+    {
+        LoggingService.LogSuccess("Customer deleted successfully");
+
+        NavigationManager.NavigateTo("/", true);
+    }
+
+    void OnEditButtonClick()
+    {
+        EditMode = !EditMode;
+    }
+
+    async Task OnSaveButtonClick()
+    {
+        await _form.Validate();
+        if (Success)
+        {
+            var data = Mapper.MapToDto(_customerInfoFormComponentModel);
+
+            await CustomerHttpClient.UpdateAsync(data);
+
+            LoggingService.LogSuccess("Customer saved successfully");
+
+            CustomerTitle = _customerInfoFormComponentModel.Name;
+
+            EditMode = !EditMode;
+        }
+        
+    }
+
+}

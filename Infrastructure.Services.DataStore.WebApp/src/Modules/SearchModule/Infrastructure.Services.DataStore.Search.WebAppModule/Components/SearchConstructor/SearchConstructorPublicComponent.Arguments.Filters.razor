@@ -1,0 +1,95 @@
+@inject IPropertyHttpClient PropertyHttpClient
+
+<div>
+    <div class="d-flex flex-wrap gap-4">
+        @foreach (var filterOrOperation in FilterOrOperations)
+        {
+            if (filterOrOperation is Filter filter)
+            {
+                <div class="filter__wrapper">
+                    <MudPaper>
+                        <div class="d-flex flex-column">
+                            <MudSelect @bind-Value="@filter.PropertyName"
+                                       Placeholder="Select Property"
+                                       AnchorOrigin="Origin.BottomCenter">
+                                @foreach (var property in Properties)
+                                {
+                                    <MudSelectItem Value="@property.Name">@property.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <MudSelect @bind-Value="@filter.OperationName"
+                                       Placeholder="Select Operation"
+                                       AnchorOrigin="Origin.BottomCenter">
+                                @foreach (var operation in Operation.List)
+                                {
+                                    <MudSelectItem Value="@operation.Name">@operation.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+
+                            <input @bind-value="@filter.Value" @bind-value:event="oninput"/>
+                        </div>
+                    </MudPaper>
+                </div>
+            }
+            else if (filterOrOperation is FilterLogicalOperation logicalOperation)
+            {
+                <div class="logical_operation__wrapper">
+                    <MudSelect @bind-Value="@logicalOperation.OperationName"
+                               AnchorOrigin="Origin.BottomCenter">
+                        @foreach (var operation in LogicalOperation.List)
+                        {
+                        <MudSelectItem Value="@operation.Name">@operation.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+            }
+        }
+        
+        <div>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@AddFilter">Add Filter</MudButton>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public List<IFilterOrOperation> FilterOrOperations { get; set; } = [];
+    List<Property> Properties { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProperties();
+    }
+    
+    async Task LoadProperties()
+    {
+        Properties = await PropertyHttpClient.GetAsync();
+    }
+
+    void AddFilter()
+    {
+        FilterOrOperations.Add(new Filter());
+        if (FilterOrOperations.Count > 1)
+        {
+            FilterOrOperations.Insert(FilterOrOperations.Count - 1, new FilterLogicalOperation());
+        }
+    }
+    
+    string BuildQueryString()
+    {
+        var queryString = new StringBuilder();
+        foreach (var filterOrOperation in FilterOrOperations)
+        {
+            if (filterOrOperation is Filter filter)
+            {
+                queryString.Append($"PropertyName=\"{filter.PropertyName}\"&OperationName=\"{filter.OperationName}\"&Value=\"{filter.Value}\"");
+            }
+            else if (filterOrOperation is FilterLogicalOperation logicalOperation)
+            {
+                queryString.Append(logicalOperation.OperationName);
+            }
+        }
+        
+        return queryString.ToString();
+    }
+}

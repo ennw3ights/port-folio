@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>Advice.Web.Producer.Modules.Finance.Module</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <WarningLevel>4</WarningLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Advice.Web.Producer.Common" Version="1.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+        <PackageReference Include="MudBlazor" Version="6.19.1" />
+        <PackageReference Include="Scrutor" Version="4.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Advice.Web.Producer.Modules.Finance.Models\Advice.Web.Producer.Modules.Finance.Models.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Advice.Web.Producer.Modules.Finance.Models\Advice.Web.Producer.Modules.Finance.Models.csproj" />
+      <ProjectReference Include="..\Advice.Web.Producer.Modules.Finance.Services\Advice.Web.Producer.Modules.Finance.Services.csproj" />
+    </ItemGroup>
+
+</Project>

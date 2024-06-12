@@ -1,0 +1,98 @@
+﻿ @inject ISourceHttpClient SourceHttpClient
+
+<SourceTable 
+    SortLabel="Sort By"
+    Bordered="true"
+    @ref="_table"
+    ServerData="@(new Func<TableState, Task<TableData<SourceTableComponentModel.SourceItem>>>(ServerReload))">
+        
+    <ToolBarContent>
+        <SourceTablePublicComponent_Search OnSearch="@(_table.OnSearch)" />
+        <MudSpacer />
+        <MudButton Href="/create-source">Create a source</MudButton>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>Source name</MudTh>
+        <MudTh>
+            Type of source
+            <MudSelect 
+                MultiSelection="true"
+                SelectedValuesChanged="@(_table.OnTypeChanged)"
+                T="string"
+                Dense="true"  
+                DisableUnderLine="true">
+                @foreach (var type in SourceType.List)
+                {
+                    <MudSelectItem T="string" Value="@type.Name">
+                        @type.Name
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel 
+                SortBy="new Func<SourceTableComponentModel.SourceItem, object>(x=>x.DateTimeCreate)"
+                SortLabel="DateTimeCreate"
+                T="SourceTableComponentModel.SourceItem">
+                Creation date
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel 
+                SortBy="new Func<SourceTableComponentModel.SourceItem, object>(x=>x.DateTimeModified)"
+                SortLabel="DateTimeModified" 
+                T="SourceTableComponentModel.SourceItem">
+                Modification date
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh>Actions with source</MudTh>
+    </HeaderContent>
+    
+    <RowTemplate>
+        <MudTd DataLabel="Source name">@context.Name</MudTd>
+        <MudTd DataLabel="Type of source">@context.Type</MudTd>
+        <MudTd DataLabel="Creation date">@context.DateTimeCreate.ToString("dd.MM.yy")</MudTd>
+        <MudTd DataLabel="Modification date">@context.DateTimeModified.ToString("dd.MM.yy")</MudTd>
+        <MudTd DataLabel="Actions with source">
+            <MudLink Href="">Open</MudLink>
+        </MudTd>
+    </RowTemplate>
+    
+    <NoRecordsContent>
+        <MudText>No matching items found</MudText>
+    </NoRecordsContent>
+    
+    <PagerContent>
+        <MudTablePager 
+            PageSizeOptions="new int[] { 10, 25, 50, int.MaxValue }" />
+    </PagerContent>
+</SourceTable>
+
+
+@code {
+    SourceTable<SourceTableComponentModel.SourceItem> _table = new();
+
+    IEnumerable<string> Options { get; set; } = new HashSet<string>();
+
+    async Task<TableData<SourceTableComponentModel.SourceItem>> ServerReload(TableState state)
+    {
+        _table.UpdateQueryParameters(state);
+
+        _table.QueryParameters.SourceTypeNames = Options;
+
+        var response = await SourceHttpClient.GetAsync(_table.QueryParameters);
+
+        var tableData = Mapper.MapToTableData(response);
+
+        _table.UpdateData(tableData);
+
+        await InvokeAsync(StateHasChanged);
+
+        return new TableData<SourceTableComponentModel.SourceItem>
+        {
+            TotalItems = tableData.TotalCount,
+            Items = tableData.Data,
+        };
+    }
+}

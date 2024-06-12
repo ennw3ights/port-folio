@@ -1,0 +1,51 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<MudPaper Class="pa-4" Elevation="6">
+    <MudText Typo="Typo.h4">Welcome to DataStore!</MudText>
+
+    <MudDivider Class="my-4" />
+    
+    <div>
+        <MudText Typo="Typo.h6">Source</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/sources">
+            View Source Page
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/source-info">
+            View Source Info Page
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/create-source">
+            View Source Creation Page
+        </MudButton>
+    </div>
+
+    <div>
+        <MudText Typo="Typo.h6">Customers</MudText>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/customers">
+            View Customers Page
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/customer-info">
+            View Customer Info Page
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Href="/create-customer">
+            View Customers Creation Page
+        </MudButton>
+    </div>
+</MudPaper>
+

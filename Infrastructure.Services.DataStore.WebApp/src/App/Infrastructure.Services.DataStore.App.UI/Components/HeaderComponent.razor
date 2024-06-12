@@ -1,0 +1,20 @@
+﻿<div>
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       OnClick="@ToggleDrawer"/>
+        <MudText>DataStore</MudText>
+        <MudSpacer />
+        <MudIcon Icon="@Icons.Material.Outlined.AccountCircle" />
+    </MudAppBar>
+    <DrawerComponent @bind-Open="@_open"/>
+</div>
+
+@code {
+    bool _open = false;
+
+    void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+
+}

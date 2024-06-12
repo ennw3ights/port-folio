@@ -1,0 +1,55 @@
+﻿@inject INotificationHttpClient NotificationHttpClient
+@inject ISnackbar Snackbar
+
+<MudButton 
+    OnClick="@OnNotificationButtonClick">
+    @if (IsNotified)
+    {
+        <MudBadge Overlap="true">
+            <MudIcon Icon="@Icons.Material.Outlined.Notifications" />
+        </MudBadge>
+    }
+    else
+    {
+        <MudIcon />
+    }
+    <MudText>@_notificationCountText</MudText>
+</MudButton>
+
+@code {
+    NotificationCountIconComponentModel _notificationCountIconComponentModel = new NotificationCountIconComponentModel();
+
+    bool IsNotified => _notificationCountIconComponentModel.Count != 0;
+
+    string _notificationCountText = string.Empty;
+    
+    const string DefaultTextIfCountExceed = "99+";
+    const int MaxCount = 99;
+
+    void SetNotificationCount()
+    {
+        _notificationCountText = _notificationCountIconComponentModel.Count > MaxCount 
+            ? DefaultTextIfCountExceed 
+            : _notificationCountIconComponentModel.Count.ToString();
+    }
+
+    async Task GetNotificationDataAsync()
+    {
+        var data = await NotificationHttpClient.GetAsync();
+
+        _notificationCountIconComponentModel = Mapper.MapToModel(data);
+
+        SetNotificationCount();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetNotificationDataAsync();
+    }
+
+    void OnNotificationButtonClick()
+    {
+        Snackbar.Add("Notification clicked");
+    }
+
+}

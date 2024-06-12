@@ -1,0 +1,66 @@
+﻿@inject ICustomerHttpClient CustomerHttpClient
+
+<CustomerTable
+    SortLabel="Sort By"
+    Bordered="true"
+    @ref="_table"
+    ServerData="@(new Func<TableState, Task<TableData<CustomerTableComponentModel.CustomerItem>>>(ServerReload))">
+    
+    <ToolBarContent>
+        <CustomerTablePublicComponent_Search OnSearch="@(_table.OnSearch)"/>
+        <MudSpacer />
+        <MudButton Href="/create-customer">Create a customer</MudButton>
+    </ToolBarContent>
+    
+    <HeaderContent>
+        <MudTh>Name of customer</MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<CustomerTableComponentModel.CustomerItem, object>(x=>x.DateTimeCreate)"
+                               SortLabel="DateTimeCreate"
+                               T="CustomerTableComponentModel.CustomerItem">
+                Creation date
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<CustomerTableComponentModel.CustomerItem, object>(x=>x.DateTimeLastModified)"
+                               SortLabel="DateTimeModified"
+                               T="CustomerTableComponentModel.CustomerItem">
+                Modification date
+            </MudTableSortLabel>
+        </MudTh>
+        <MudTh>Actions with customer</MudTh>
+    </HeaderContent>
+    
+    <RowTemplate>
+        <MudTd DataLabel="Name of customer">@context.Name</MudTd>
+        <MudTd DataLabel="Creation date">@context.DateTimeCreate.ToString("dd.MM.yy")</MudTd>
+        <MudTd DataLabel="Modification date">@context.DateTimeLastModified.ToString("dd.MM.yy")</MudTd>
+        <MudTd DataLabel="Actions with customer">
+            <MudLink Href="">Open</MudLink>
+            <MudLink Href="">Export</MudLink>
+        </MudTd>
+    </RowTemplate>
+</CustomerTable>
+
+@code {
+    CustomerTable<CustomerTableComponentModel.CustomerItem> _table = new();
+
+    async Task<TableData<CustomerTableComponentModel.CustomerItem>> ServerReload(TableState state)
+    {
+        _table.UpdateQueryParameters(state);
+
+        var response = await CustomerHttpClient.GetAsync(_table.QueryParameters);
+
+        var tableData = Mapper.MapToTableData(response);
+
+        _table.UpdateData(tableData);
+
+        await InvokeAsync(StateHasChanged);
+
+        return new TableData<CustomerTableComponentModel.CustomerItem>()
+        {
+            TotalItems = tableData.TotalCount,
+            Items = tableData.Data,
+        };
+    }
+}

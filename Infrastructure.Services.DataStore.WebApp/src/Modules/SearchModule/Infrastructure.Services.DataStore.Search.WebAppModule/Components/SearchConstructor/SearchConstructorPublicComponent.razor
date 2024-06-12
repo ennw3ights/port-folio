@@ -1,0 +1,101 @@
+@inject CountdownService CountdownService
+@inject ISearchHttpClient SearchService
+
+<div>
+    <div>
+        <MudText>Options</MudText>
+        <SearchConstructorPublicComponent_Options Parameters="@SearchModel.SearchParameters"/>
+    </div>
+
+    <MudDivider Class="my-4" />
+    
+    <div>
+        <MudText>Arguments</MudText>
+        <SearchConstructorPublicComponent_Arguments Arguments="@SearchModel.SearchArguments" />
+    </div>
+
+    <MudButton Variant="Variant.Filled" OnClick="@OnSearch">Search</MudButton>
+
+    <div>
+        @if (_countdownActive)
+        {
+            <MudText>@CountdownService.FormatTime(CountdownValue)</MudText>
+            <MudProgressLinear Color="Color.Primary" Value="@Value"/>
+        }
+    </div>
+
+    <div>
+        @if (_loadingComplete)
+        {
+            <MudDivider Class="my-4" />
+            
+            <SearchConstructorPublicComponent_Table Response="@Response"/>
+        }
+    </div>
+</div>
+
+@code {
+    SearchConstructorComponentModel SearchModel { get; set; } = new();
+    ResponseComponentModel Response { get; set; } = null!;
+    
+    bool _disposed;
+    bool _countdownActive = false;
+    bool _loadingComplete = false;
+    int Value { get; set; }
+    int CountdownValue { get; set; } = 3;
+
+    void Dispose() => _disposed = true;
+
+    async Task ProgressAsync()
+    {
+        Value = 0;
+        CountdownValue = 3;
+        do
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            Value += 1;
+            CountdownValue -= 1;
+            StateHasChanged();
+            await Task.Delay(1000);
+        } while (Value < 3);
+
+        _loadingComplete = true;
+    }
+
+    async Task OnSearch()
+    {
+        _countdownActive = true;
+        await ProgressAsync();
+        _countdownActive = false;
+        await GetResponse();
+    }
+
+    async Task GetResponse()
+    {
+        var data = await SearchService.GetAsync(Mapper.MapToDto(SearchModel));
+        Response = Mapper.MapToModel(data);
+    }
+    
+    string BuildQueryString()
+    {
+        var queryString = new StringBuilder();
+        foreach (var filterOrOperation in SearchModel.SearchArguments.Filters)
+        {
+            if (filterOrOperation is Filter filter)
+            {
+                queryString.Append(
+                    $"PropertyName=\"{filter.PropertyName}\"&OperationName=\"{filter.OperationName}\"&Value=\"{filter.Value}\"");
+            }
+            else if (filterOrOperation is FilterLogicalOperation logicalOperation)
+            {
+                queryString.Append($" \"{logicalOperation.OperationName}\" ");
+            }
+        }
+        
+        return queryString.ToString();
+    }
+}

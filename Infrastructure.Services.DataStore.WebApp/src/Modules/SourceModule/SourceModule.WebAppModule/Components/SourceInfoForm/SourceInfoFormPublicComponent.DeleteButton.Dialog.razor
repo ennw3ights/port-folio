@@ -1,0 +1,19 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>Are you sure you want to delete this source?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Default" OnClick="@Cancel">No</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@Submit">Yes</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = null!;
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    void Cancel() => MudDialog.Cancel();
+}

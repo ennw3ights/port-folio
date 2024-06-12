@@ -1,0 +1,47 @@
+﻿<MudCarousel @ref="_carousel"
+             AutoCycle="false"
+             ItemsSource="Source"
+             Style="height:600px;">
+    <ItemTemplate>
+        @foreach (var property in @context.Properties)
+        {
+            <MudTextField T="string"
+                          Disabled="true"
+                          Variant="Variant.Outlined"
+                          Value="@property.Name" />
+            @if (property.IsRequired)
+            {
+                <MudCheckBox Disabled="true"
+                             @bind-Value="@Check">
+                    Required
+                </MudCheckBox>
+            }
+
+            @if (property.IsUnique)
+            {
+                <MudCheckBox Disabled="true"
+                             @bind-Value="@Check">
+                    Unique to the customer
+                </MudCheckBox>
+            }
+
+            @if (property.IsValidByDefault)
+            {
+                <MudCheckBox Disabled="true"
+                             @bind-Value="@Check">
+                    Valid only
+                </MudCheckBox>
+            }
+        }
+    </ItemTemplate>
+</MudCarousel>
+
+@code {
+
+    [Parameter]
+    public List<CustomerTemplate> Source { get; set; } = null!;
+
+    MudCarousel<CustomerTemplate> _carousel = null!;
+
+    bool Check { get; set; } = true;
+}

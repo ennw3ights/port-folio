@@ -1,0 +1,11 @@
+﻿<MudTextField 
+    T="string"
+    ValueChanged="@OnSearch"
+    Placeholder="Search by name..." 
+    Adornment="Adornment.Start" 
+    AdornmentIcon="@Icons.Material.Filled.Search" 
+    IconSize="Size.Medium" />
+
+@code {
+    [Parameter] public EventCallback<string> OnSearch { get; set; }
+}

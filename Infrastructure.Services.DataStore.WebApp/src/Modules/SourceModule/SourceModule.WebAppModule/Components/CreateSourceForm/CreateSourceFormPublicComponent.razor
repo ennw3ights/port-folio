@@ -1,0 +1,121 @@
+﻿@inject ISourceHttpClient SourceHttpClient
+@inject ISourceValidator SourceValidator
+@inject NavigationManager NavigationManager
+
+<MudForm @ref="_form" @bind-IsValid="@Success">
+    <MudText Typo="Typo.h5">Title</MudText>
+
+    <MudTextField 
+        Variant="Variant.Outlined"
+        Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))"
+        @bind-Value="@_createSourceFormComponentModel.Name"
+        Placeholder="Enter title..." />
+    
+    <MudText Typo="Typo.h5">Type</MudText>
+    <MudSelect 
+        @bind-Value="@_createSourceFormComponentModel.Type"
+        Variant="Variant.Outlined" 
+        Placeholder="Select type..."
+        T="SourceType">
+        @foreach (var type in SourceType.List)
+        {
+            <MudSelectItem Value="type">
+                @type.Name
+            </MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudText Typo="Typo.h5">TemplateCreation</MudText>
+    <MudDropContainer
+        Class="d-flex flex-wrap flex-grow-1"
+        T="DropItem"
+        Items="_dropItems"
+        ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)"
+        ItemDropped="ItemUpdated">
+        <ChildContent>
+            <MudDropZone T="DropItem" Identifier="Available" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                <MudText Typo="Typo.h6">Available properties</MudText>
+            </MudDropZone>
+
+            <MudDropZone T="DropItem" Identifier="Selected" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                <MudText Typo="Typo.h6">Your template</MudText>
+            </MudDropZone>
+        </ChildContent>
+        <ItemRenderer>
+            <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
+            @if (context.Identifier == "Selected")
+            {
+                <MudCheckBox @bind-Value="@context.IsValid">Valid by default</MudCheckBox>
+            }
+        </ItemRenderer>
+    </MudDropContainer>
+    <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+</MudForm>
+
+@code {
+    readonly CreateSourceFormComponentModel  _createSourceFormComponentModel = new CreateSourceFormComponentModel();
+    
+    List<SourceProperty> _properties = new();
+
+    List<DropItem> _dropItems = new();
+
+    MudForm _form = null!;
+
+    bool Success { get; set; }
+
+    static void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        if (dropItem.Item != null)
+        {
+            dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(200);
+        _properties = SourcePropertyGenerator.GenerateSourceProperties();
+
+        foreach (var property in _properties)
+        {
+            _dropItems.Add(new()
+            {
+                Name = property.Name,
+                Identifier = "Available",
+                IsValid = false
+            });
+        }
+    }
+
+    async Task OnSaveButtonClick()
+    {
+        await _form.Validate();
+        if (Success)
+        {
+            foreach (var dropItem in _dropItems)
+            {
+                if (dropItem.Identifier == "Selected")
+                {
+                    _createSourceFormComponentModel.Template.Properties.Add(new SourceProperty()
+                    {
+                        Name = dropItem.Name,
+                        IsValidByDefault = dropItem.IsValid
+                    });
+                }
+            }
+
+            var data = Mapper.MapToDto(_createSourceFormComponentModel);
+
+            await SourceHttpClient.CreateAsync(data);
+
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+
+    public class DropItem
+    {
+        public string Name { get; set; } = null!;
+        public string Identifier { get; set; } = null!;
+        public bool IsValid { get; set; }
+    }
+}

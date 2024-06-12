@@ -1,0 +1,28 @@
+<div>
+
+    <div>
+        <MudText>Filters</MudText>
+        <div>
+            <SearchConstructorPublicComponent_Arguments_Filters FilterOrOperations="@Arguments.Filters"/>
+        </div>
+    </div>
+
+    <MudDivider Class="my-4"/>
+
+    <div>
+        <MudText>Template</MudText>
+        <SearchConstructorPublicComponent_Arguments_Template Templates="@Arguments.Templates"/>
+    </div>
+
+    <MudDivider Class="my-4"/>
+
+    <div>
+        <MudText>Pagination and sorting</MudText>
+        <SearchConstructorPublicComponent_Arguments_PaginationAndSorting Settings="@Arguments.Settings"
+                                                                         Templates="@Arguments.Templates"/>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Arguments Arguments { get; set; } = new();
+}

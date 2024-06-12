@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MudBlazor" Version="6.19.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\BuildingBlocks\Infrastructure.Services.DataStore.Common\Infrastructure.Services.DataStore.Common.csproj" />
+        <ProjectReference Include="..\..\Modules\CustomerModule\CustomerModule.Models\CustomerModule.Models.csproj" />
+        <ProjectReference Include="..\..\Modules\CustomerModule\CustomerModule.Services\CustomerModule.Services.csproj" />
+        <ProjectReference Include="..\..\Modules\CustomerModule\CustomerModule.WebAppModule\CustomerModule.WebAppModule.csproj" />
+        <ProjectReference Include="..\..\Modules\SourceModule\SourceModule.WebAppModule\SourceModule.WebAppModule.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Components\Contacts\Export\ExportComponent.razor" />
+      <UpToDateCheckInput Remove="Components\Contacts\Import\ImportComponent.razor" />
+    </ItemGroup>
+
+</Project>

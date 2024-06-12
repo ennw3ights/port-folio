@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.4" />
+        <PackageReference Include="MudBlazor" Version="6.19.1" />
+        <PackageReference Include="MudBlazor.ThemeManager" Version="1.0.9" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Infrastructure.Services.DataStore.App.UI\Infrastructure.Services.DataStore.App.UI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\Pages\Contacts\Export\Index.razor" />
+      <_ContentIncludedByDefault Remove="Components\Pages\Contacts\Import\Index.razor" />
+      <_ContentIncludedByDefault Remove="Components\Pages\Search\Index.razor" />
+    </ItemGroup>
+
+</Project>

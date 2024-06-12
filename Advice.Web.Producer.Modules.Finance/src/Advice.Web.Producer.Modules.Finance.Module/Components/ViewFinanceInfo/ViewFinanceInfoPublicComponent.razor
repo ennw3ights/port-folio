@@ -1,0 +1,57 @@
+﻿@using Advice.Web.Producer.Modules.Finance.Models.Components
+@using Advice.Web.Producer.Modules.Finance.Services.HttpClients
+@inject IFinanceHttpClient FinanceHttpClient
+
+<MudGrid>
+    <MudItem xs="6">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText>Баланс в валюте</MudText>
+            </MudItem>
+            @foreach (var balance in FinanceModel.Balances)
+            {
+                @if (@balance.Currency != "EC")
+                {
+                    <MudItem xs="4" Class="d-flex gap-2">
+                        <MudText>@balance.Quantity.ToString("0,0", CultureInfo.InvariantCulture)</MudText>
+                        <MudText>@balance.Currency</MudText>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+    </MudItem>
+    <MudSpacer />
+    <MudItem xs="4">
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText>Баланс в баллах</MudText>
+            </MudItem>
+            @foreach (var balance in FinanceModel.Balances)
+            {
+                @if (@balance.Currency == "EC")
+                {
+                    <MudItem xs="4" Class="d-flex gap-2">
+                        <MudText>@balance.Quantity.ToString("0,0", CultureInfo.InvariantCulture)</MudText>
+                        <MudText>@balance.Currency</MudText>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+@code {
+    ViewFinanceInfoComponentModel FinanceModel { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBalances();
+    }
+
+    private async Task LoadBalances()
+    {
+        var response = await FinanceHttpClient.GetAsync();
+
+        FinanceModel = Mapper.MapToModel(response);
+    }
+}

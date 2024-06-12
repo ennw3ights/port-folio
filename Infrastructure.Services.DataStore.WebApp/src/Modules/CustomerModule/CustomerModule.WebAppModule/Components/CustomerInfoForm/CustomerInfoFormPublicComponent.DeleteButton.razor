@@ -1,0 +1,28 @@
+﻿@inject IDialogService DialogService
+@inject ICustomerHttpClient CustomerHttpClient
+
+<MudButton Variant="Variant.Filled"
+           OnClick="@OnDeleteButtonClick">
+    Delete
+</MudButton>
+
+@code {
+    [Parameter]
+    public string CustomerId { get; set; } = null!;
+
+    [Parameter] 
+    public EventCallback OnRemove { get; set; }
+
+    async Task OnDeleteButtonClick()
+    {
+        var dialog = await DialogService.ShowAsync<CustomerInfoFormPublicComponent_DeleteButton_Dialog>();
+
+        var result = await dialog.Result;
+
+        if (result.Data is true)
+        {
+            await CustomerHttpClient.DeleteAsync(CustomerId);
+            await OnRemove.InvokeAsync();
+        }
+    }
+}

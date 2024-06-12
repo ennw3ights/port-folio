@@ -1,0 +1,49 @@
+<div>
+    <SearchConstructorPublicComponent_Arguments_Template_Drop Properties="@Properties" 
+                                                              PropertiesChanged="@HandlePropertiesChanged"/>
+</div>
+
+@code {
+    [Parameter] public List<Template> Templates { get; set; } = [];
+    List<Property> Properties { get; set; } = [];
+
+    protected override void OnInitialized()
+    {
+        if (Templates.Any())
+        {
+            foreach (var template in Templates.Where(template => template.Properties == null))
+            {
+                template.Properties = [];
+            }
+        }
+        else
+        {
+            Templates.AddRange(new List<Template>
+            {
+                new()
+                {
+                    Properties = []
+                }
+            });
+        }
+    }
+
+    Task HandlePropertiesChanged(List<Property> newProperties)
+    {
+        if (Templates.Any())
+        {
+            foreach (var template in Templates)
+            {
+                template.Properties ??= [];
+
+                foreach (var property in newProperties.Where(
+                             property => template.Properties.All(prop => prop.Name != property.Name)))
+                {
+                    template.Properties.Add(property);
+                }
+            }
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

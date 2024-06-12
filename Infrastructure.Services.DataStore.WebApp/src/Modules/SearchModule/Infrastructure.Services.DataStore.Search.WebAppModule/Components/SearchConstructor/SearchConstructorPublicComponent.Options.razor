@@ -1,0 +1,13 @@
+<div>
+    <div class="d-flex flex-column">
+        <label>Maximum quantity</label>
+        <input type="number"
+               @bind-value="@Parameters.MaxCount"
+               @bind-value:event="oninput"
+               placeholder="Maximum quantity..."/>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Parameters Parameters { get; set; } = new();
+}

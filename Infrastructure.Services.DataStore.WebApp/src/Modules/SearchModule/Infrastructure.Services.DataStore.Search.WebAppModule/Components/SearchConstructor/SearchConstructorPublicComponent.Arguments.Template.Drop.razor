@@ -1,0 +1,113 @@
+@inject IPropertyHttpClient PropertyHttpClient
+
+<div>
+    @if (_isTemplatePropertiesLoaded)
+    {
+        <MudDropContainer T="TemplatePropertyComponentModel.TemplateProperty"
+                          Items="@TemplateProperty.AvailableProperties.Concat(TemplateProperty.SelectedProperties)"
+                          ItemsSelector="@((item, dropzone) => item.Selector == dropzone)"
+                          ItemDropped="@ItemUpdated"
+                          Class="d-flex flex-wrap flex-grow-1">
+            <ChildContent>
+                <div class="drop_container_card_wrapper">
+                    <MudList Clickable="false" Class="d-flex flex-column mud-height-full mud-width-full">
+                        <MudListSubheader>Available Properties</MudListSubheader>
+                        <MudDropZone T="TemplatePropertyComponentModel.TemplateProperty"
+                                     Identifier="@SearchConstructorTemplatePropertySettings.AvailablePropertiesIdName"
+                                     Class="flex-grow-1"
+                                     AllowReorder="true"/>
+                    </MudList>
+                </div>
+                <div class="drop_container_card_wrapper">
+                    <MudList Clickable="false" Class="d-flex flex-column mud-height-full">
+                        <MudListSubheader>Your Properties</MudListSubheader>
+                        <MudDropZone T="TemplatePropertyComponentModel.TemplateProperty"
+                                     Identifier="@SearchConstructorTemplatePropertySettings.SelectedPropertiesIdName"
+                                     Class="flex-grow-1"
+                                     AllowReorder="true"/>
+                    </MudList>
+                </div>
+            </ChildContent>
+            <ItemRenderer>
+                @if (context.Selector == SearchConstructorTemplatePropertySettings.AvailablePropertiesIdName)
+                {
+                    <MudListItem Text="@context.Name" />
+                }
+                else
+                {
+                    <MudListItem>
+                        <div class="d-flex align-items-center">
+                            <MudText>@context.Name</MudText>
+                            <MudSpacer />
+                            <MudCheckBox Value="@context.IsRequired" Label="Required" Dense="true" />
+                            <MudCheckBox Value="@context.IsValid" Label="Valid only" Dense="true"/>
+                        </div>
+                    </MudListItem>
+                }
+            </ItemRenderer>
+        </MudDropContainer>
+    }
+    else
+    {
+        <MudSkeleton />
+    }
+</div>
+
+@code {
+    [Parameter] public List<Property> Properties { get; set; } = [];
+    [Parameter] public EventCallback<List<Property>> PropertiesChanged { get; set; }
+    
+    TemplatePropertyComponentModel TemplateProperty { get; set; } = new();
+    bool _isTemplatePropertiesLoaded = false;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProperties();
+    }
+    
+    async Task LoadProperties()
+    {
+        var allProperties = await PropertyHttpClient.GetAsync();
+
+        if (allProperties.Any())
+        {
+            TemplateProperty.AvailableProperties = Mapper.MapToList(allProperties).ToList();
+            _isTemplatePropertiesLoaded = true;
+        }
+        else
+        {
+            Console.WriteLine("Error: Property list is null.");
+        }
+    }
+    
+    async Task NotifyPropertiesChanged(List<Property> newProperties)
+    {
+        await PropertiesChanged.InvokeAsync(newProperties);
+    }
+    
+    async Task ItemUpdated(MudItemDropInfo<TemplatePropertyComponentModel.TemplateProperty> dropItem)
+    {
+        var item = dropItem.Item;
+        if (item == null) return;
+        
+        item.Selector = dropItem.DropzoneIdentifier;
+    
+        if (dropItem.DropzoneIdentifier != SearchConstructorTemplatePropertySettings.SelectedPropertiesIdName) return;
+        
+        if (!TemplateProperty.SelectedProperties.Contains(item))
+        {
+            TemplateProperty.AvailableProperties.Remove(item);
+            TemplateProperty.SelectedProperties.Add(item);
+        }
+        else
+        {
+            TemplateProperty.SelectedProperties.Remove(item);
+            if (!TemplateProperty.AvailableProperties.Contains(item))
+            {
+                TemplateProperty.AvailableProperties.Add(item);
+            }
+        }
+
+        await NotifyPropertiesChanged(Mapper.MapToPropertyList(TemplateProperty.SelectedProperties).ToList());
+    }
+}

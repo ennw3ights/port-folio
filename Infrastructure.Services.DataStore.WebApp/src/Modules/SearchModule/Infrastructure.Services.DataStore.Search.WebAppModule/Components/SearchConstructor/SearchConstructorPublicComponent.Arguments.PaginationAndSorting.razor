@@ -1,0 +1,122 @@
+@inject IPropertyHttpClient PropertyHttpClient
+
+<div>
+    <div class="d-flex flex-column">
+        <label for="skipRecords">Skip entries</label>
+        <input id="skipRecords"
+               type="number"
+               placeholder="Enter a number..."
+               @bind-value="@Settings.SkipRecordsNumber"
+               @bind-value:event="oninput"/>
+    </div>
+
+    <div class="d-flex flex-column">
+        <label for="takeRecords">How many records to take</label>
+        <input id="takeRecords"
+               type="number"
+               placeholder="Enter a number..."
+               @bind-value="@Settings.TakeRecordsNumber"
+               @bind-value:event="oninput"/>
+    </div>
+    
+    <div class="d-flex flex-column">
+        <label>Sort by field (optional)</label>
+        <MudSelect @bind-Value="Settings.FieldForSorting"
+                   Placeholder="Select the field"
+                   Clearable="true"
+                   Variant="Variant.Outlined">
+            @foreach (var property in Templates.SelectMany(template => template.Properties))
+            {
+                <MudSelectItem Value="@property">@property.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </div>
+    
+    <div class="d-flex flex-column">
+        <label>Sort (optional)</label>
+        <MudRadioGroup @bind-Value="@Settings.SortBy">
+            <MudRadio Value="@SortOrderOption.Ascending" Dense="true" Size="Size.Small">Ascending</MudRadio>
+            <MudRadio Value="@SortOrderOption.Descending" Dense="true" Size="Size.Small">Descending</MudRadio>
+        </MudRadioGroup>
+    </div>
+    
+    <div class="d-flex flex-column">
+        <label>Data source (optional)</label>
+        <MudExpansionPanels>
+            <MudExpansionPanel Text="Choose a source">
+                <MudAutocomplete T="PaginationAndSortingSourceComponentModel.PaginationAndSortingSource"
+                                 Placeholder="Search..."
+                                 @bind-Value="@Source"
+                                 @bind-Value:event="ValueChanged"
+                                 SearchFunc="@Search"
+                                 ToStringFunc="@((e) => e.Name)"
+                                 Variant="Variant.Text"
+                                 Immediate="true"/>
+
+                <div>
+                    <MudForm FieldChanged="@OnChangeCheckboxValue">
+                        @foreach (var source in FilteredCheckboxSources)
+                        {
+                            <MudCheckBox @bind-Value="@source.Selected" Label="@source.Name"/>
+                        }
+                    </MudForm>
+                </div>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </div>
+</div>
+
+@code {
+    [Parameter] public PaginationAndSorting Settings { get; set; } = new();
+    [Parameter] public List<Template> Templates { get; set; } = [];
+    
+    List<PaginationAndSortingSourceComponentModel.PaginationAndSortingSource> CheckboxSources { get; set; } = [];
+    List<PaginationAndSortingSourceComponentModel.PaginationAndSortingSource> FilteredCheckboxSources { get; set; } = [];
+    
+    PaginationAndSortingSourceComponentModel.PaginationAndSortingSource Source { get; set; } = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSources();
+    }
+
+    Task LoadSources()
+    {
+        CheckboxSources =
+        [
+            new PaginationAndSortingSourceComponentModel.PaginationAndSortingSource { Name = "Source 1", Selected = false },
+            new PaginationAndSortingSourceComponentModel.PaginationAndSortingSource { Name = "Source 2", Selected = false },
+            new PaginationAndSortingSourceComponentModel.PaginationAndSortingSource { Name = "Source 3", Selected = false },
+            new PaginationAndSortingSourceComponentModel.PaginationAndSortingSource { Name = "Source 4", Selected = false },
+            new PaginationAndSortingSourceComponentModel.PaginationAndSortingSource { Name = "Source 5", Selected = false }
+        ];
+        FilteredCheckboxSources = CheckboxSources;
+        return Task.CompletedTask;
+    }
+
+    Task<IEnumerable<PaginationAndSortingSourceComponentModel.PaginationAndSortingSource>> Search(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            FilteredCheckboxSources = CheckboxSources;
+        }
+        else
+        {
+            FilteredCheckboxSources = CheckboxSources.Where(
+                s => s.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        }
+        return Task.FromResult<IEnumerable<PaginationAndSortingSourceComponentModel.PaginationAndSortingSource>>(FilteredCheckboxSources);
+    }
+
+    void OnChangeCheckboxValue()
+    {
+        foreach (var checkbox in CheckboxSources.Where(checkbox => checkbox.Selected))
+        {
+            if (!Settings.SourceNames.Contains(checkbox.Name))
+            {
+                Settings.SourceNames.Add(checkbox.Name);
+            }
+        }
+    }
+
+}
