@@ -1,51 +1,96 @@
 ﻿@inject ICustomerHttpClient CustomerHttpClient
+
 @foreach (var container in _dropContainers)
 {
-    <MudPaper Class="ma-4 flex-grow-1" @key="container.Id">
-        <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-            <MudDropContainer T="DropItem"
-                              Items="container.Items"
-                              ItemsSelector="@((item, dropzone) => item.Selector == dropzone)"
-                              ItemDropped="@((dropItem) => ItemUpdated(dropItem, container.Id))"
-                              Class="d-flex flex-wrap flex-grow-1">
-                <ChildContent>
-                    @foreach (var dropzone in container.DropZones)
-                    {
-                        <MudPaper Class="ma-4 flex-grow-1" @key="dropzone">
-                            @if (dropzone == "Selected")
-                            {
-                                if (container.IsDefault)
-                                {
-                                    <MudLink>Default</MudLink>
-                                }
-                                else
-                                {
-                                    <MudLink OnClick="@(() => OnMakeDefaultClick(container.Id))">Make Default</MudLink>
-                                    <MudLink OnClick="@(() => RemoveDropContainer(container.Id))">Delete</MudLink>
-                                }
-                            }
-                            <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
-                                <MudListSubheader>Drop Zone @dropzone</MudListSubheader>
-                                <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1"/>
-                            </MudList>
-                        </MudPaper> 
-                    }
-                </ChildContent>
-                <ItemRenderer>
-                    <MudListItem Text="@context.Name" />
+    <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+        <MudDropContainer T="DropItem"
+                          Items="container.Items"
+                          ItemsSelector="@((item, dropzone) => item.Selector == dropzone)"
+                          ItemDropped="@((dropItem) => ItemUpdated(dropItem, container.Id))"
+                          Class="d-flex flex-wrap flex-grow-1">
+            <ChildContent>
+                @foreach (var dropzone in container.DropZones)
+                {
+                    <MudPaper Class="my-4 pa-2 mr-4 flex-grow-1 border-1 mud-border-secondary w-25" @key="dropzone">
+                        <MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+                            <MudListSubheader>
+                                <div class="d-flex flex-row">
+                                    @if (dropzone == "Available")
+                                    {
+                                        <MudText Typo="Typo.h2">Available properties</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText Typo="Typo.h2">Your template</MudText>
+                                    }
+                                    <MudSpacer />
+
+                                    @if (dropzone == "Selected")
+                                    {
+                                        if (container.IsDefault)
+                                        {
+                                            <MudLink>Default</MudLink>
+                                        }
+                                        else
+                                        {
+                                            <MudLink OnClick="@(() => OnMakeDefaultClick(container.Id))">Make Default</MudLink>
+                                            <MudText>&nbsp</MudText>
+                                            <MudLink OnClick="@(() => RemoveDropContainer(container.Id))">Delete</MudLink>
+                                        }
+                                    }
+                                </div>
+                            </MudListSubheader>
+                            <MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1"/>
+                        </MudList>
+                    </MudPaper> 
+                }
+            </ChildContent>
+            <ItemRenderer>
+                <div class="d-flex flex-row">
+                    <MudPaper Class="pa-2 ml-4 mb-2 w-50 border-2 mud-border-secondary">
+                        @context.Name
+                    </MudPaper>
                     @if (context.Selector == "Selected")
                     {
-                        <MudCheckBox @bind-Value="context.IsRequired">Required</MudCheckBox>
-                        <MudCheckBox @bind-Value="context.IsUnique">Unique to the customer</MudCheckBox>
-                        <MudCheckBox @bind-Value="context.IsValidOnly">Valid only</MudCheckBox>
+                        <MudCheckBox @bind-Value="context.IsRequired"
+                                     Class="ml-n2"
+                                     Size="Size.Small"
+                                     ReadOnly="true"
+                                     Color="Color.Secondary">
+                            <MudText Typo="Typo.body2"
+                                     Class="mx-n2">
+                                Required
+                            </MudText>
+                        </MudCheckBox>
+                        
+                        <MudCheckBox @bind-Value="context.IsUnique"
+                                     Size="Size.Small"
+                                     ReadOnly="true"
+                                     Color="Color.Secondary">
+                            <MudText Typo="Typo.body2"
+                                     Class="mx-n3">
+                                Unique to the customer
+                            </MudText>
+                        </MudCheckBox>
+                        
+                        <MudCheckBox @bind-Value="context.IsValidOnly"
+                                     Size="Size.Small"
+                                     ReadOnly="true"
+                                     Color="Color.Secondary">
+                            <MudText Typo="Typo.body2"
+                                     Class="ml-n3">
+                                Valid only
+                            </MudText>
+                        </MudCheckBox>
                     }
-                </ItemRenderer>
-            </MudDropContainer>
-        </MudList>
-    </MudPaper>
+                </div>
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudList>
 }
-
-<MudLink OnClick="() => AddDropContainer(false)">Add more container</MudLink>
+<div class="w-100 text-center">
+    <MudLink Color="Color.Default" OnClick="() => AddDropContainer(false)">Add more container</MudLink>
+</div>
 
 @code {
     [Parameter]

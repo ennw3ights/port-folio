@@ -5,15 +5,27 @@
 
 <MudText Typo="Typo.h1">Creating a customer</MudText>
 
-<MudForm @ref="_form" @bind-IsValid="@Success">
-    <MudText Typo="Typo.h2">Title</MudText>
+<MudForm @ref="_form" 
+         @bind-IsValid="@Success"
+         Class="w-75 mt-6">
+    <MudText Typo="Typo.h2">
+        Title
+    </MudText>
+    
     <MudTextField @bind-Value="_createCustomerFormComponentModel.Name"
+                  Class="w-50"
+                  Variant="Variant.Outlined"
                   Placeholder="Enter title..."
                   Validation="@(new Func<string, IEnumerable<string>>(CustomerValidator.ValidateName))" />
     
     <CreateCustomerFormPublicComponent_TemplateConstructor SaveEventCallback="SaveContainerInfo" />
     
-    <MudButton OnClick="OnSaveButtonClick">Save</MudButton>
+    <MudButton OnClick="OnSaveButtonClick"
+               Class="mud-border-secondary"
+               Size="Size.Large"
+               Variant="Variant.Outlined">
+        Save
+    </MudButton>
 </MudForm>
 
 @code{

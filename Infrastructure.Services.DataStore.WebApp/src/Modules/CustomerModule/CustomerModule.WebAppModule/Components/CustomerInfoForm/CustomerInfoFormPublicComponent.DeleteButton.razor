@@ -1,8 +1,10 @@
 ﻿@inject IDialogService DialogService
 @inject ICustomerHttpClient CustomerHttpClient
 
-<MudButton Variant="Variant.Filled"
-           OnClick="@OnDeleteButtonClick">
+<MudButton OnClick="@OnDeleteButtonClick"
+           Class="mx-2 mud-border-secondary"
+           Variant="Variant.Outlined"
+           Size="Size.Large">
     Delete
 </MudButton>
 

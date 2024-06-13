@@ -5,81 +5,126 @@
 @inject NavigationManager NavigationManager
 @inject LoggingService LoggingService
 
-<MudText Typo="Typo.h1">Customer "@CustomerTitle"</MudText>
+<MudText Class="ml-4" Typo="Typo.h1">Customer "@CustomerTitle"</MudText>
 
-<MudForm @ref="_form" @bind-IsValid="Success">
+<MudForm @ref="_form" 
+         @bind-IsValid="Success"
+         Class="w-75">
     <MudList>
-        <MudListItem>Id: @_customerInfoFormComponentModel.Id</MudListItem>
-        <MudDivider />
+        <MudListItem>
+            <div class="d-flex flex-row">
+                <MudText Class="w-25">Id:</MudText> @_customerInfoFormComponentModel.Id
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
         
         <MudListItem>
-            Title:
-            <MudTextField T="string"
-                          Disabled="@(!EditMode)"
-                          @bind-Value="@_customerInfoFormComponentModel.Name"
-                          Validation="@(new Func<string, IEnumerable<string>>(CustomerValidator.ValidateName))" />
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Title:</MudText>
+                @if (!EditMode)
+                {
+                    <MudText Typo="Typo.body2">@_customerInfoFormComponentModel.Name</MudText>
+                }
+                else
+                {
+                    <MudTextField T="string"
+                                  Margin="Margin.Dense"
+                                  Variant="Variant.Outlined"
+                                  @bind-Value="@_customerInfoFormComponentModel.Name"
+                                  Validation="@(new Func<string, IEnumerable<string>>(CustomerValidator.ValidateName))"/>
+                }
+            </div>
         </MudListItem>
-        <MudDivider />
-        
-        <MudListItem>Date of creation: @_customerInfoFormComponentModel.DateTimeCreate.ToString("dd.MM.yy")</MudListItem>
-        <MudDivider />
-
-        <MudListItem>Modification date: @_customerInfoFormComponentModel.DateTimeLastModified.ToString("dd.MM.yy")</MudListItem>
-        <MudDivider />
+        <MudDivider DividerType="DividerType.Middle"/>
         
         <MudListItem>
-            Default template:
-            @foreach (var property in _customerInfoFormComponentModel.DefaultTemplate.Properties)
-            {
-                <MudTextField T="string"
-                              Disabled="true"
-                              Variant="Variant.Outlined"
-                              Value="@property.Name" />
-
-                @if (property.IsRequired)
-                {
-                    <MudCheckBox Disabled="true"
-                                 @bind-Value="@Check">
-                        Required
-                    </MudCheckBox>
-                }
-
-                @if (property.IsUnique)
-                {
-                    <MudCheckBox Disabled="true"
-                                 @bind-Value="@Check">
-                        Unique to the customer
-                    </MudCheckBox>
-                }
-
-                @if (property.IsValidByDefault)
-                {
-                    <MudCheckBox Disabled="true"
-                                 @bind-Value="@Check">
-                        Valid only
-                    </MudCheckBox>
-                }
-            }
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Date of creation:</MudText>
+                @_customerInfoFormComponentModel.DateTimeCreate.ToString("dd.MM.yy")
+            </div>
         </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
+
+        <MudListItem>
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Modification date:</MudText>
+                @_customerInfoFormComponentModel.DateTimeLastModified.ToString("dd.MM.yy")
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
         
-        @if (_customerInfoFormComponentModel.Templates != null)
-        {
-            <MudListItem Style="height:600px;">
-                Templates:
-                <CustomerInfoFormPublicComponent_TemplateCarousel Source="_customerInfoFormComponentModel.Templates"/>
-            </MudListItem>
-        }
+        <MudListItem>
+            <div class="d-flex flex-row w-100">
+                <MudText Class="w-25 mt-2">Default template:</MudText>
+                <div class="d-flex flex-column w-100">
+                    @foreach (var property in _customerInfoFormComponentModel.DefaultTemplate.Properties)
+                    {
+                        <div class="d-flex flex-row w-100">
+                            <MudPaper Class="pa-2 w-25 mb-2 ml-12 border-2 mud-border-secondary">
+                                @property.Name
+                            </MudPaper>
+
+                            @if (property.IsRequired)
+                            {
+                                <MudCheckBox ReadOnly="true"
+                                             Size="Size.Small"
+                                             Color="Color.Secondary"
+                                             @bind-Value="@Check">
+                                    <MudText Typo="Typo.body2">Required</MudText>
+                                </MudCheckBox>
+                            }
+
+                            @if (property.IsUnique)
+                            {
+                                <MudCheckBox ReadOnly="true"
+                                             Size="Size.Small"
+                                             Color="Color.Secondary"
+                                             @bind-Value="@Check">
+                                    <MudText Typo="Typo.body2">Unique to the customer</MudText>
+                                </MudCheckBox>
+                            }
+
+                            @if (property.IsValidByDefault)
+                            {
+                                <MudCheckBox ReadOnly="true"
+                                             Size="Size.Small"
+                                             Color="Color.Secondary"
+                                             @bind-Value="@Check">
+                                    <MudText Typo="Typo.body2">Valid only</MudText>
+                                </MudCheckBox>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </MudListItem>
 
         @if (!EditMode)
         {
             <CustomerInfoFormPublicComponent_DeleteButton CustomerId="@_customerInfoFormComponentModel.Id"
                                                           OnRemove="@OnDeleteButtonClick"/>
-            <MudButton OnClick="@OnEditButtonClick">Edit</MudButton>
-            <MudButton Href="/import">Import</MudButton>
+            <MudButton OnClick="@OnEditButtonClick"
+                       Class="mx-2 mud-border-secondary"
+                       Variant="Variant.Outlined"
+                       Size="Size.Large">
+                Edit
+            </MudButton>
+            
+            <MudButton Href="/import"
+                       Class="mx-2 mud-border-secondary"
+                       Variant="Variant.Outlined"
+                       Size="Size.Large">
+                Import
+            </MudButton>
         }
         else
         {
-            <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+            <MudButton OnClick="@OnSaveButtonClick"
+                       Class="mx-2 mud-border-secondary"
+                       Variant="Variant.Outlined"
+                       Size="Size.Large">
+                Save
+            </MudButton>
         }
     </MudList>
 </MudForm>

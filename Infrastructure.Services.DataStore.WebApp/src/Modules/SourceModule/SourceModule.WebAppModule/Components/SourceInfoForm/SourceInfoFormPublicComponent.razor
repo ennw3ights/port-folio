@@ -29,7 +29,6 @@
                     <MudTextField T="string" 
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
-                                  Disabled="@(!EditMode)"
                                   @bind-Value="@_sourceInfoFormComponentModel.Name"
                                   Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))"/>
                 }
@@ -107,7 +106,12 @@
     }
     else
     {
-        <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+        <MudButton OnClick="@OnSaveButtonClick"
+                   Class="mx-2 mud-border-secondary"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large">
+            Save
+        </MudButton>
     }
 </MudForm>
 

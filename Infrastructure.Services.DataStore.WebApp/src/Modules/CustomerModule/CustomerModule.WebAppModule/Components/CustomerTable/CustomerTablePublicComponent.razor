@@ -1,45 +1,71 @@
 ﻿@inject ICustomerHttpClient CustomerHttpClient
 
+<div class="d-flex flex-row w-75 mb-4 m-auto">
+    <CustomerTablePublicComponent_Search OnSearch="@(_table.OnSearch)"/>
+    <MudSpacer />
+    <MudButton Href="/create-customer"
+               Variant="Variant.Outlined"
+               Class="mud-border-secondary mud-theme-primary">
+        Create a customer
+    </MudButton>
+</div>
+
 <CustomerTable
+    Class="w-75 m-auto"
     SortLabel="Sort By"
     Bordered="true"
     @ref="_table"
+    RowClass="border-x-2 mud-border-secondary"
+    CustomHeader="true"
+    HeaderClass="border-2 mud-border-secondary mud-theme-primary"
     ServerData="@(new Func<TableState, Task<TableData<CustomerTableComponentModel.CustomerItem>>>(ServerReload))">
     
-    <ToolBarContent>
-        <CustomerTablePublicComponent_Search OnSearch="@(_table.OnSearch)"/>
-        <MudSpacer />
-        <MudButton Href="/create-customer">Create a customer</MudButton>
-    </ToolBarContent>
-    
     <HeaderContent>
-        <MudTh>Name of customer</MudTh>
-        <MudTh>
+        <MudTh Class="border-r-2 mud-border-secondary text-center">Name of customer</MudTh>
+        <MudTh Class="border-r-2 mud-border-secondary text-center">
             <MudTableSortLabel SortBy="new Func<CustomerTableComponentModel.CustomerItem, object>(x=>x.DateTimeCreate)"
                                SortLabel="DateTimeCreate"
                                T="CustomerTableComponentModel.CustomerItem">
                 Creation date
             </MudTableSortLabel>
         </MudTh>
-        <MudTh>
+        <MudTh Class="border-r-2 mud-border-secondary text-center">
             <MudTableSortLabel SortBy="new Func<CustomerTableComponentModel.CustomerItem, object>(x=>x.DateTimeLastModified)"
                                SortLabel="DateTimeModified"
                                T="CustomerTableComponentModel.CustomerItem">
                 Modification date
             </MudTableSortLabel>
         </MudTh>
-        <MudTh>Actions with customer</MudTh>
+        <MudTh Class="border-r-2 mud-border-secondary text-center">Actions with customer</MudTh>
     </HeaderContent>
     
     <RowTemplate>
-        <MudTd DataLabel="Name of customer">@context.Name</MudTd>
-        <MudTd DataLabel="Creation date">@context.DateTimeCreate.ToString("dd.MM.yy")</MudTd>
-        <MudTd DataLabel="Modification date">@context.DateTimeLastModified.ToString("dd.MM.yy")</MudTd>
-        <MudTd DataLabel="Actions with customer">
-            <MudLink Href="">Open</MudLink>
-            <MudLink Href="">Export</MudLink>
+        <MudTd Class="border-r-2 mud-border-secondary text-center" DataLabel="Name of customer">
+            @context.Name
+        </MudTd>
+        <MudTd Class="border-r-2 mud-border-secondary text-center" DataLabel="Creation date">
+            @context.DateTimeCreate.ToString("dd.MM.yy")
+        </MudTd>
+        <MudTd Class="border-r-2 mud-border-secondary text-center" DataLabel="Modification date">
+            @context.DateTimeLastModified.ToString("dd.MM.yy")
+        </MudTd>
+        <MudTd Class="border-r-2 mud-border-secondary text-center" DataLabel="Actions with customer">
+            <MudLink Color="Color.Default" Href="">Open</MudLink>
+            <MudLink Color="Color.Default" Href="">Export</MudLink>
         </MudTd>
     </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>No matching items found</MudText>
+    </NoRecordsContent>
+
+
+    <PagerContent>
+        <div class="border-x-2 border-b-2 mud-border-secondary mud-theme-primary">
+            <MudTablePager
+                PageSizeOptions="new int[] { 10, 25, 50, int.MaxValue }"/>
+        </div>
+    </PagerContent>
 </CustomerTable>
 
 @code {
