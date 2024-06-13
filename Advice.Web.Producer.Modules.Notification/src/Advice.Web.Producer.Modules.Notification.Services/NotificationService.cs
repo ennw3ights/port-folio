@@ -1,4 +1,7 @@
-﻿namespace Advice.Web.Producer.Modules.Notification.Services;
+﻿using Advice.Web.Producer.Modules.Marketing.Services.HttpClients;
+using Advice.Web.Producer.Modules.Marketing.Services.HttpClients.DTOs;
+
+namespace Advice.Web.Producer.Modules.Marketing.Services;
 
 public class NotificationService(INotificationHttpClient httpClient) : INotificationHttpClient
 {

@@ -1,4 +1,6 @@
-﻿namespace Advice.Web.Producer.Modules.Notification.WebAppModule.Components.NotificationCountIcon;
+﻿using Advice.Web.Producer.Modules.Marketing.Services.HttpClients.DTOs;
+
+namespace Advice.Web.Producer.Modules.Notification.WebAppModule.Components.NotificationCountIcon;
 
 public partial class NotificationCountIconPublicComponent
 {

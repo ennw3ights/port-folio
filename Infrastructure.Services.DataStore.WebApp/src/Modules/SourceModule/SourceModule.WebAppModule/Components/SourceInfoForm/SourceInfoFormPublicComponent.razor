@@ -3,43 +3,85 @@
 @inject ISourceHttpClient SourceHttpClient
 @inject NavigationManager NavigationManager
 
-<MudText Typo="Typo.h1">Source "@SourceTitle"</MudText>
+<MudText Class="ml-4" Typo="Typo.h1">Source "@SourceTitle"</MudText>
 
-<MudForm @ref="_form" @bind-IsValid="@Success">
+<MudForm @ref="_form" 
+         @bind-IsValid="@Success"
+         Class="w-50">
     <MudList>
-        <MudListItem>Id: @_sourceInfoFormComponentModel.Id</MudListItem>
-        <MudDivider/>
         <MudListItem>
-            Title: 
-            <MudTextField T="string"
-                          Disabled="@(!EditMode)"
-                          @bind-Value="@_sourceInfoFormComponentModel.Name"
-                          Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))" />
+        <div class="d-flex flex-row">
+            <MudText Class="w-25">Id:</MudText> @_sourceInfoFormComponentModel.Id
+        </div>
         </MudListItem>
-        <MudDivider/>
-        <MudListItem>Type: @_sourceInfoFormComponentModel.Type.Name</MudListItem>
-        <MudDivider/>
-        <MudListItem>Date of creation: @_sourceInfoFormComponentModel.DateTimeCreated.ToString("dd.MM.yy")</MudListItem>
-        <MudDivider/>
-        <MudListItem>Modification date: @_sourceInfoFormComponentModel.DateTimeModified.ToString("dd.MM.yy")</MudListItem>
-        <MudDivider/>
+        <MudDivider DividerType="DividerType.Middle"/>
+        
         <MudListItem>
-            Template:
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Title:</MudText>
+                
+                @if (!EditMode)
+                {
+                    <MudText Typo="Typo.body2">@_sourceInfoFormComponentModel.Name</MudText>
+                }
+                else
+                {
+                    <MudTextField T="string" 
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Disabled="@(!EditMode)"
+                                  @bind-Value="@_sourceInfoFormComponentModel.Name"
+                                  Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))"/>
+                }
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
+        
+        <MudListItem>
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Type:</MudText> 
+                @_sourceInfoFormComponentModel.Type.Name
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
+        
+        <MudListItem>
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Date of creation:</MudText>
+                @_sourceInfoFormComponentModel.DateTimeCreated.ToString("dd.MM.yy")
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
+        
+        <MudListItem>
+            <div class="d-flex flex-row">
+                <MudText Class="w-25 my-auto">Modification date:</MudText>
+                @_sourceInfoFormComponentModel.DateTimeModified.ToString("dd.MM.yy")
+            </div>
+        </MudListItem>
+        <MudDivider DividerType="DividerType.Middle"/>
+        
+        <MudListItem>
+            <MudText Typo="Typo.body1" Class="mb-2">Template:</MudText>
             @foreach (var property in _sourceInfoFormComponentModel.Template.Properties)
             {
-                <MudTextField
-                    T="string"
-                    Disabled="true"
-                    Variant="Variant.Outlined"
-                    Value="@property.Name"/>
-                if (property.IsValidByDefault)
-                {
-                    <MudCheckBox
-                        Disabled="true"
-                        @bind-Value="@Check">
-                        Valid by default
-                    </MudCheckBox>
-                }
+                <div class="d-flex flex-row w-100">
+                    <MudPaper Class="pa-3 mb-2 w-50 border-2 mud-border-secondary"
+                              Elevation="0">
+                        @property.Name
+                    </MudPaper>
+                    
+                    @if(property.IsValidByDefault)
+                    {
+                        <MudCheckBox ReadOnly="true"
+                                     @bind-Value="@Check"
+                                     Class="mt-1"
+                                     Size="Size.Small"
+                                     Color="Color.Secondary">
+                            Valid by default
+                        </MudCheckBox>
+                    }
+                </div>
             }
         </MudListItem>
     </MudList>
@@ -48,8 +90,20 @@
     {
         <SourceInfoFormPublicComponent_DeleteButton SourceId="@_sourceInfoFormComponentModel.Id"
                                                     OnRemove="@OnDeleteButtonClick"/>
-        <MudButton OnClick="@OnEditButtonClick">Edit</MudButton>
-        <MudButton Href="/import">Import</MudButton>
+        
+        <MudButton OnClick="@OnEditButtonClick"
+                   Class="mx-2 mud-border-secondary"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large">
+            Edit
+        </MudButton>
+        
+        <MudButton Href="/import"
+                   Class="mud-border-secondary"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large">
+            Import
+        </MudButton>
     }
     else
     {

@@ -1,4 +1,4 @@
-﻿namespace Advice.Web.Producer.Modules.Notification.Services.HttpClients.DTOs;
+﻿namespace Advice.Web.Producer.Modules.Marketing.Services.HttpClients.DTOs;
 
 public class NotificationDto
 {

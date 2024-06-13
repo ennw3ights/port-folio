@@ -2,16 +2,26 @@
 @inject ISourceValidator SourceValidator
 @inject NavigationManager NavigationManager
 
-<MudForm @ref="_form" @bind-IsValid="@Success">
-    <MudText Typo="Typo.h5">Title</MudText>
+<MudForm @ref="_form" 
+         @bind-IsValid="@Success"
+         Class="w-75">
+    <MudText Class="mt-2"
+             Typo="Typo.h5">
+        Title
+    </MudText>
 
     <MudTextField 
+        Class="w-50 mud-border-secondary"
         Variant="Variant.Outlined"
         Validation="@(new Func<string, IEnumerable<string>>(SourceValidator.ValidateName))"
         @bind-Value="@_createSourceFormComponentModel.Name"
         Placeholder="Enter title..." />
     
-    <MudText Typo="Typo.h5">Type</MudText>
+    <MudText Class="mt-4"
+             Typo="Typo.h5">
+        Type
+    </MudText>
+    <div class="w-50">
     <MudSelect 
         @bind-Value="@_createSourceFormComponentModel.Type"
         Variant="Variant.Outlined" 
@@ -24,8 +34,12 @@
             </MudSelectItem>
         }
     </MudSelect>
+    </div>
 
-    <MudText Typo="Typo.h5">TemplateCreation</MudText>
+    <MudText Class="mt-4"
+             Typo="Typo.h5">
+        Template Creation
+    </MudText>
     <MudDropContainer
         Class="d-flex flex-wrap flex-grow-1"
         T="DropItem"
@@ -33,23 +47,45 @@
         ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)"
         ItemDropped="ItemUpdated">
         <ChildContent>
-            <MudDropZone T="DropItem" Identifier="Available" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+            <MudDropZone 
+                T="DropItem" 
+                Identifier="Available" 
+                Class="rounded border-2 mud-border-secondary pa-6 flex-grow-1 w-25">
                 <MudText Typo="Typo.h6">Available properties</MudText>
             </MudDropZone>
 
-            <MudDropZone T="DropItem" Identifier="Selected" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+            <MudDropZone 
+                T="DropItem" 
+                Identifier="Selected" 
+                Class="rounded border-2 mud-border-secondary pa-6 ml-2 flex-grow-1 w-25">
                 <MudText Typo="Typo.h6">Your template</MudText>
             </MudDropZone>
         </ChildContent>
         <ItemRenderer>
-            <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
-            @if (context.Identifier == "Selected")
-            {
-                <MudCheckBox @bind-Value="@context.IsValid">Valid by default</MudCheckBox>
-            }
+            <div class="d-flex flex-row">
+                <MudPaper Elevation="0"
+                          Class="border-2 mud-border-secondary pa-4 my-4 w-75">
+                    @context.Name
+                </MudPaper>
+                @if (context.Identifier == "Selected")
+                {
+                    <MudCheckBox @bind-Value="@context.IsValid"
+                                 Size="Size.Small"
+                                 Class="my-auto"
+                                 Color="Color.Secondary">
+                        Valid by default
+                    </MudCheckBox>
+                }
+            </div>
         </ItemRenderer>
     </MudDropContainer>
-    <MudButton OnClick="@OnSaveButtonClick">Save</MudButton>
+    
+    <MudButton OnClick="@OnSaveButtonClick"
+               Class="mt-4 mud-border-secondary"
+               Variant="Variant.Outlined"
+               Size="Size.Large">
+        Save
+    </MudButton>
 </MudForm>
 
 @code {

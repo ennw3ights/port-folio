@@ -6,7 +6,7 @@ public static class SourceGenerator
     {
         var dummyDtos = new List<SourceDto>();
 
-        for (int i = 0; i < 90; i++)
+        for (int i = 0; i < 30; i++)
         {
             dummyDtos.Add(new()
             {

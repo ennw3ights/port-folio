@@ -1,13 +1,14 @@
 ﻿@inject IDialogService DialogService
 @inject ISourceHttpClient SourceHttpClient
 
-<MudButton Variant="Variant.Filled"
+<MudButton Variant="Variant.Outlined"
+           Class="mud-border-secondary ml-4"
+           Size="Size.Large"
            OnClick="@OnDeleteButtonClick">
     Delete
 </MudButton>
 
 @code {
-
     [Parameter]
     public string SourceId { get; set; } = null!;
 
